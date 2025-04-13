@@ -19,8 +19,7 @@ export const AuthProvider = ({ children }: any) => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
 
-      // Verificar si el token ha expirado
-      const expirationTime = parsedUser?.expires_at; // Timestamp exacto de expiración
+      const expirationTime = parsedUser?.expires_at;
       if (expirationTime && Date.now() > expirationTime) {
         console.warn("Token expirado. Redirigiendo a login...");
         logout();
@@ -28,13 +27,17 @@ export const AuthProvider = ({ children }: any) => {
       }
 
       setUser(parsedUser);
+
       if (location.pathname === "/auth") {
-        navigate("/");
+        navigate("/dashboard");
       }
-    } else if (location.pathname !== "/auth") {
-      navigate("/auth");
+    } else {
+      if (location.pathname !== "/auth") {
+        navigate("/auth");
+      }
     }
-  }, [location.pathname, navigate]);
+    // Se ejecuta una sola vez al montar el componente
+  }, []);
 
   const login = (userData: any) => {
     const expiresAt = Date.now() + userData.expires_in * 1000; // Guardar la fecha exacta de expiración
@@ -44,7 +47,7 @@ export const AuthProvider = ({ children }: any) => {
     setTimeout(() => {
       setUser(userWithExpiration);
     }, 1000);
-    navigate("/");
+    navigate("/dashboard");
   };
 
   const logout = () => {

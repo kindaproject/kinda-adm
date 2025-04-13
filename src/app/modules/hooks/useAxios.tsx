@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../auth";
 
 const API_URL =
   import.meta.env.VITE_APP_API_URL || "https://kindagolden.pro/api";
@@ -15,7 +15,8 @@ const useAxios = (
   const [loading, setLoading] = useState(false);
   const [waiting, setWaiting] = useState(0);
   const [reloadFlag, setReloadFlag] = useState(0);
-  const { user, logout } = useAuth();
+
+  const { auth, logout } = useAuth();
 
   const fetchData = useCallback(
     async (url: any, method = "GET", options = {}) => {
@@ -26,9 +27,7 @@ const useAxios = (
           url: `${API_URL}${url}`,
           method,
           headers: {
-            Authorization: user?.access_token
-              ? `Bearer ${user.access_token}`
-              : "",
+            Authorization: auth?.api_token ? `Bearer ${auth.api_token}` : "",
             "Content-Type": "application/json",
           },
           ...(method !== "GET" ? { data: options } : { params: options }),
@@ -49,7 +48,7 @@ const useAxios = (
         setWaiting((prev) => Math.max(0, prev - 1));
       }
     },
-    [user, logout]
+    [auth, logout]
   );
 
   const execute = async (url: any, method = "GET", options = {}) => {
